@@ -1,0 +1,44 @@
+stagesConfig:
+  # First config => Stages 1-3
+  - before: []
+    between:
+      - [reporting_analyst, reporting_task]
+    after:
+      - [reporting_analyst, reporting_task]
+    debaters_tasks:
+      - identify_key_questions_task
+      - analyze_potential_impacts_task
+      - propose_possible_solutions_task
+      - evaluate_feasibility_task
+  
+  # Second config => Stages 4-5
+  - before:
+      - [judging_agent, formulate_proposal_task]
+    between: []
+    after:
+      - [judging_agent, integrate_amends_task]
+    debaters_tasks:
+      - amend_proposal_task
+  
+  # Third config => Stage 6
+  - before: []
+    between: []
+    after:
+      - [judging_agent, recopilate_and_evaluate_task]
+    debaters_tasks:
+      - collect_agent_responses_task
+  
+  # Fourth config => Stage 7
+  - before: []
+    between: []
+    after:
+      - [reporting_analyst, generate_consensus_report_task]
+    debaters_tasks:
+      - collect_agent_responses_task
+
+################################################################################
+# Other global or default settings
+################################################################################
+models:
+  - "ollama/llama3.2:latest"
+max_retries: 10
