@@ -1,6 +1,6 @@
 debaters_agents:
-	- "geopolitical_analyst1"
-	- "geopolitical_analyst2"
+	- "fool_agent"
+	- "smart_agent"
 
 
 core_agents:
@@ -49,7 +49,6 @@ stagesConfig:
 # Other global or default settings
 ################################################################################
 models:
-  geopolitical_analyst1: "ollama/llama3.1"
-  geopolitical_analyst1: "ollama/deepseek-r1:7b"
+  - "ollama/llama3.2:latest"
 max_retries: 10
-topic: "Universal Basic Income"
+topic: "Hitler Contribution to german society"

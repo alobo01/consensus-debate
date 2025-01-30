@@ -1,7 +1,6 @@
 debaters_agents:
-	- "FreeMarketProponent"
-	- "GovernmentInterventionAdvocate"
-	- "CentristMediator"
+	- "geopolitical_analyst1"
+	- "geopolitical_analyst2"
 
 
 core_agents:
@@ -50,6 +49,7 @@ stagesConfig:
 # Other global or default settings
 ################################################################################
 models:
-  - "ollama/llama3.2:latest"
+  geopolitical_analyst1: "ollama/llama3.1"
+  geopolitical_analyst1: "ollama/deepseek-r1:7b"
 max_retries: 10
-topic: "Universal Basic Income"
+topic: "Taiwan's Status"

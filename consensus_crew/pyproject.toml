@@ -1,23 +1,20 @@
 [project]
-name = "consensus_crew"
+name = "consensus"
 version = "0.1.0"
-description = "consensus_crew using crewAI"
-authors = [{ name = "Your Name", email = "you@example.com" }]
-requires-python = ">=3.10,<3.13"
+description = "Consensus using crewAI"
+authors = [{ name = "Antonio Lobo", email = "alobosantos10@gmail.com" }]
+requires-python = ">=3.10,<=3.13"
 dependencies = [
-    "crewai[tools]>=0.98.0,<1.0.0"
+    "crewai>=0.95.0,<1.0.0"
 ]
 
 [project.scripts]
-consensus_crew = "consensus_crew.main:run"
-run_crew = "consensus_crew.main:run"
-train = "consensus_crew.main:train"
-replay = "consensus_crew.main:replay"
-test = "consensus_crew.main:test"
+kickoff = "consensus_crew.main:kickoff"
+plot = "consensus_crew.main:plot"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.crewai]
-type = "crew"
+[tool.hatch.build.targets.wheel]
+packages = ["src/consensus_crew"]

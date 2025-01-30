@@ -51,4 +51,4 @@ stagesConfig:
 models:
   - "ollama/llama3.2:latest"
 max_retries: 10
-topic: "Universal Basic Income"
+topic: "Is the Earth flat?"

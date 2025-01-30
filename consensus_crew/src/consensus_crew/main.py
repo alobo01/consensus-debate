@@ -1,8 +1,8 @@
 import json
-from crewai.flow.flow import Flow, start, listen
-from crewai import completion
+import os
+from crewai.flow.flow import Flow, start, listen, or_, router
 import yaml
-from consensus_crew.src.consensus_crew.crews import ConsensusCrew
+from src.consensus_crew.crews import ConsensusCrew
 
 def load_config(config_path: str = "crew_config.yaml"):
     """Loads entire configuration (agents, tasks, stagesConfig, etc.) from YAML."""
@@ -41,10 +41,10 @@ class ConsensusOrchestrationFlow(Flow):
         crew13 = ConsensusCrew(
             debaters_agents_list=self.config_data["debaters_agents"],
             core_agents_list=self.config_data["core_agents"],
-            after_tasks=self.config_data["stageConfig"][0]["after"],
-            before_tasks=self.config_data["stageConfig"][0]["before"],
-            between_tasks=self.config_data["stageConfig"][0]["between"],
-            debater_tasks=self.config_data["stageConfig"][0]["debater_tasks"],
+            after_tasks=self.config_data["stagesConfig"][0]["after"],
+            before_tasks=self.config_data["stagesConfig"][0]["before"],
+            between_tasks=self.config_data["stagesConfig"][0]["between"],
+            debater_tasks=self.config_data["stagesConfig"][0]["debater_tasks"],
             model=self.models[0]
         )
         # The initial "prompt_data" can include the topic
@@ -60,10 +60,10 @@ class ConsensusOrchestrationFlow(Flow):
         crew45 = ConsensusCrew(
             debaters_agents_list=self.config_data["debaters_agents"],
             core_agents_list=self.config_data["core_agents"],
-            after_tasks=self.config_data["stageConfig"][1]["after"],
-            before_tasks=self.config_data["stageConfig"][1]["before"],
-            between_tasks=self.config_data["stageConfig"][1]["between"],
-            debater_tasks=self.config_data["stageConfig"][1]["debater_tasks"],
+            after_tasks=self.config_data["stagesConfig"][1]["after"],
+            before_tasks=self.config_data["stagesConfig"][1]["before"],
+            between_tasks=self.config_data["stagesConfig"][1]["between"],
+            debater_tasks=self.config_data["stagesConfig"][1]["debater_tasks"],
             model=self.models[0]
         )
         result_45 = crew45.crew().kickoff({
@@ -80,10 +80,10 @@ class ConsensusOrchestrationFlow(Flow):
         crew6 = ConsensusCrew(
             debaters_agents_list=self.config_data["debaters_agents"],
             core_agents_list=self.config_data["core_agents"],
-            after_tasks=self.config_data["stageConfig"][2]["after"],
-            before_tasks=self.config_data["stageConfig"][2]["before"],
-            between_tasks=self.config_data["stageConfig"][2]["between"],
-            debater_tasks=self.config_data["stageConfig"][2]["debater_tasks"],
+            after_tasks=self.config_data["stagesConfig"][2]["after"],
+            before_tasks=self.config_data["stagesConfig"][2]["before"],
+            between_tasks=self.config_data["stagesConfig"][2]["between"],
+            debater_tasks=self.config_data["stagesConfig"][2]["debater_tasks"],
             model=self.models[0]
         )
         stage_6_result = crew6.crew().kickoff({
@@ -149,7 +149,7 @@ class ConsensusOrchestrationFlow(Flow):
             "problem_detected": problem_detected
         }
 
-    @listen(run_stage_6)
+    @router(run_stage_6)
     def maybe_repeat_stages_4_to_5(self, stage_6_data):
         """
         If stage 6 indicates a problem, re-run CrewStages4to5 up to max_retries times.
@@ -176,10 +176,10 @@ class ConsensusOrchestrationFlow(Flow):
         crew7 = ConsensusCrew(
             debaters_agents_list=self.config_data["debaters_agents"],
             core_agents_list=self.config_data["core_agents"],
-            after_tasks=self.config_data["stageConfig"][3]["after"],
-            before_tasks=self.config_data["stageConfig"][3]["before"],
-            between_tasks=self.config_data["stageConfig"][3]["between"],
-            debater_tasks=self.config_data["stageConfig"][3]["debater_tasks"],
+            after_tasks=self.config_data["stagesConfig"][3]["after"],
+            before_tasks=self.config_data["stagesConfig"][3]["before"],
+            between_tasks=self.config_data["stagesConfig"][3]["between"],
+            debater_tasks=self.config_data["stagesConfig"][3]["debater_tasks"],
             model=self.models[0]
         )
         final_result = crew7.crew().kickoff({
@@ -202,12 +202,25 @@ class ConsensusOrchestrationFlow(Flow):
     #     return final_output
 
 
+def kickoff():
+    print("==== Starting Consensus Orchestration Flow ====")
+    config_directory = os.path.join("src","config")
+    for config_file in os.listdir("src/config"):
+        consensus_flow = ConsensusOrchestrationFlow(config_path=os.path.join(config_directory,config_file))
+        consensus_flow.kickoff()
+
+def plot():
+    
+    consensus_flow = ConsensusOrchestrationFlow(config_path="src/config/crew_config1.yaml")
+    consensus_flow.plot()
+
+
 ################################################################################
 # 5) If you want a direct script entry, do:
 ################################################################################
 
 if __name__ == "__main__":
-    flow = ConsensusOrchestrationFlow(config_path="crew_config.yaml")
+    flow = ConsensusOrchestrationFlow(config_path="src/config/ crew_config1.yaml")
     result = flow.kickoff()
     print("==== FINAL OUTPUT (Stage 7) ====")
     print(result)
