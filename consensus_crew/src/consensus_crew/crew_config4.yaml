@@ -1,6 +1,6 @@
 debaters_agents:
-	- "fool_agent"
-	- "smart_agent"
+	- "flat_earther"
+	- "physics_scientist"
 
 
 core_agents:
