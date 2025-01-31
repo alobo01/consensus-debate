@@ -1,6 +1,6 @@
 debaters_agents:
-	- "flat_earther"
-	- "physics_scientist"
+  - "flat_earther"
+  - "physics_scientist"
 
 
 core_agents:
@@ -49,6 +49,6 @@ stagesConfig:
 # Other global or default settings
 ################################################################################
 models:
-  - "ollama/llama3.2:latest"
+  - "ollama/falcon3:10b"
 max_retries: 10
 topic: "Is the Earth flat?"

@@ -1,6 +1,6 @@
 debaters_agents:
-	- "geopolitical_analyst1"
-	- "geopolitical_analyst2"
+  - "geopolitical_analyst1"
+  - "geopolitical_analyst2"
 
 
 core_agents:

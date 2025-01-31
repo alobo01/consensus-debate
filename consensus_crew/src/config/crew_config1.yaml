@@ -43,6 +43,6 @@ stagesConfig:
 # Other global or default settings
 ################################################################################
 models:
-  - "ollama/llama3.2:latest"
+  - "ollama/falcon3:10b"
 max_retries: 10
 topic: "Universal Basic Income"

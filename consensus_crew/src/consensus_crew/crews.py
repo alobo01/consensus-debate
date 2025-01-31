@@ -257,7 +257,7 @@ class ConsensusCrew:
 				 debaters_agents_list: List[str], 
 				 core_agents_list: List[str], 
 				 before_tasks: List[str],
-				 debater_tasks: List[str],
+				 debaters_tasks: List[str],
 				 between_tasks: List[str],
 				 after_tasks: List[str],
 				 models: Optional[Dict[str, str]] = None, 
@@ -274,11 +274,12 @@ class ConsensusCrew:
 			after_tasks (list): List of after task identifiers.
 			models (dict or str, optional): Model configurations per agent or a default model.
 		"""
+		
 		super().__init__(*args, **kwargs)  # Ensure proper initialization of the base class
 		self.debaters_agents = debaters_agents_list
 		self.core_agents = core_agents_list
 		self.before_tasks = before_tasks
-		self.debater_tasks = debater_tasks
+		self.debaters_tasks = debaters_tasks
 		self.between_tasks = between_tasks
 		self.after_tasks = after_tasks
 		self.models = models if models is not None else self.default_model
@@ -339,7 +340,7 @@ class ConsensusCrew:
 		debater_context = tasks.copy()
 
 		# Execute Debater Tasks with Between Tasks
-		for idx, debater_task_id in enumerate(self.debater_tasks):
+		for idx, debater_task_id in enumerate(self.debaters_tasks):
 			# Initialize Debater Tasks
 			debater_tasks_current = []
 			for agent_id in self.debaters_agents:
@@ -360,7 +361,7 @@ class ConsensusCrew:
 			# Update context with current debater tasks
 			debater_context = debater_tasks_current.copy()
 			# Execute Between Tasks after each debater task phase, except after the last debater task
-			if idx < len(self.debater_tasks) - 1:
+			if idx < len(self.debaters_tasks) - 1:
 				debater_tasks_current = []
 				for agent_id,between_task_id in self.between_tasks:
 					between_task_config = self.tasks_config.get(between_task_id)

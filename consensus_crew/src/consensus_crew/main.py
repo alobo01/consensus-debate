@@ -25,15 +25,19 @@ class ConsensusOrchestrationFlow(Flow):
       4) Runs CrewStage7 => stage 7
     """
 
-    def __init__(self, config_path="crew_config.yaml", *args, **kwargs):
+    def __init__(self, config_path="crew_config.yaml", model="ollama/llama3.2", *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.config_data = load_config(config_path)
         self.stages_config = self.config_data["stagesConfig"]
         self.topic = self.config_data.get("topic", "General Basic Income")
-        self.models = self.config_data.get("models", ["ollama/llama3.2:latest"])
+        if isinstance(self.config_data.get("models", ["ollama/llama3.2:latest"]), dict):
+            self.models = self.config_data.get("models", ["ollama/llama3.2:latest"])
+        else:
+            self.models = [model]
         self.max_retries = self.config_data.get("max_retries", 5)
         self.stage6_output=""
         self.retries=0
+        self.model = model
 
     @start()
     def run_stages_1_to_3(self):
@@ -44,8 +48,8 @@ class ConsensusOrchestrationFlow(Flow):
             after_tasks=self.config_data["stagesConfig"][0]["after"],
             before_tasks=self.config_data["stagesConfig"][0]["before"],
             between_tasks=self.config_data["stagesConfig"][0]["between"],
-            debater_tasks=self.config_data["stagesConfig"][0]["debater_tasks"],
-            model=self.models[0]
+            debaters_tasks=self.config_data["stagesConfig"][0]["debaters_tasks"],
+            models=self.models[0]
         )
         # The initial "prompt_data" can include the topic
         kickoff_result = crew13.crew().kickoff({
@@ -63,13 +67,15 @@ class ConsensusOrchestrationFlow(Flow):
             after_tasks=self.config_data["stagesConfig"][1]["after"],
             before_tasks=self.config_data["stagesConfig"][1]["before"],
             between_tasks=self.config_data["stagesConfig"][1]["between"],
-            debater_tasks=self.config_data["stagesConfig"][1]["debater_tasks"],
-            model=self.models[0]
+            debaters_tasks=self.config_data["stagesConfig"][1]["debaters_tasks"],
+            models=self.models[0]
         )
+
+        
         result_45 = crew45.crew().kickoff({
             "failed_ideas": self.stage6_output,
             "topic": self.topic,
-            "result": prev_result,
+            "result": str(prev_result),
             "agents": str(self.config_data["debaters_agents"]+self.config_data["core_agents"]),
         })
         return result_45.raw
@@ -83,12 +89,12 @@ class ConsensusOrchestrationFlow(Flow):
             after_tasks=self.config_data["stagesConfig"][2]["after"],
             before_tasks=self.config_data["stagesConfig"][2]["before"],
             between_tasks=self.config_data["stagesConfig"][2]["between"],
-            debater_tasks=self.config_data["stagesConfig"][2]["debater_tasks"],
-            model=self.models[0]
+            debaters_tasks=self.config_data["stagesConfig"][2]["debaters_tasks"],
+            models=self.models[0]
         )
         stage_6_result = crew6.crew().kickoff({
             "topic": self.topic,
-            "result": prev_result,
+            "result": str(prev_result),
             "agents": str(self.config_data["debaters_agents"]+self.config_data["core_agents"]),
         })
         output_str = stage_6_result.raw
@@ -139,7 +145,13 @@ class ConsensusOrchestrationFlow(Flow):
 
         # final decision or parse from the "final_decision" field
         final_decision = data.get("final_decision", {})
-        accept_proposal = final_decision.get("accept_proposal", "false").lower() == "true"
+        accept_proposal = final_decision.get("accept_proposal", "false")
+        if isinstance(accept_proposal,str):
+            accept_proposal=accept_proposal.lower()=="true"
+        elif isinstance(accept_proposal,bool):
+            accept_proposal=accept_proposal
+        else:
+            accept_proposal=False
 
         # In your strategy: if WeightedStance < 0 or agent's final decision says false => we treat it as a "problem"
         problem_detected = (weighted_stance < 0) or (not accept_proposal)
@@ -179,12 +191,12 @@ class ConsensusOrchestrationFlow(Flow):
             after_tasks=self.config_data["stagesConfig"][3]["after"],
             before_tasks=self.config_data["stagesConfig"][3]["before"],
             between_tasks=self.config_data["stagesConfig"][3]["between"],
-            debater_tasks=self.config_data["stagesConfig"][3]["debater_tasks"],
-            model=self.models[0]
+            debaters_tasks=self.config_data["stagesConfig"][3]["debaters_tasks"],
+            models=self.models[0]
         )
         final_result = crew7.crew().kickoff({
             "topic": self.topic,
-            "result": prev_result,
+            "result": str(prev_result),
             "agents": str(self.config_data["debaters_agents"]+self.config_data["core_agents"]),
         })
         return final_result.raw
@@ -203,11 +215,18 @@ class ConsensusOrchestrationFlow(Flow):
 
 
 def kickoff():
+    models = [
+		"ollama/falcon3:10b",
+		"ollama/falcon3",
+		"ollama/llama3.2",
+		"ollama/llama3.1"
+	]
     print("==== Starting Consensus Orchestration Flow ====")
     config_directory = os.path.join("src","config")
-    for config_file in os.listdir("src/config"):
-        consensus_flow = ConsensusOrchestrationFlow(config_path=os.path.join(config_directory,config_file))
-        consensus_flow.kickoff()
+    for model in models:
+        for config_file in os.listdir("src/config"):
+            consensus_flow = ConsensusOrchestrationFlow(config_path=os.path.join(config_directory,config_file),model=model)
+            consensus_flow.kickoff()
 
 def plot():
     
