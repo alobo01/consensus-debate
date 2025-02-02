@@ -1,8 +1,12 @@
 <div>
 Running the Flow
 ==== Starting Consensus Orchestration Flow ====
+
 <span style="font-weight: bold"></span><span style="font-weight: bold; color: #E850A8"> Flow started with ID: 35c56f01-7bfd-47ba-97dc-2bc7995d70b1</span>
-<span style="font-weight: bold"></span><span style="font-weight: bold; color: #ff00ff"># Agent:</span> <span style="font-weight: bold"></span><span style="font-weight: bold; color: #00ff00">Geopolitical Analyst</span>
+<span style="font-weight: bold"></span>
+<span style="font-weight: bold; color: #ff00ff"># Agent:</span> 
+<span style="font-weight: bold"></span>
+<span style="font-weight: bold; color: #00ff00">Geopolitical Analyst</span>
 <span style="color: #ff00ff">## Task:</span> <span style="color: #00ff00">Identify the critical questions that need to be addressed to thoroughly understand  and evaluate the topic of **Taiwan's Status**. Focus on foundational principles, significant challenges,  and areas that require further research or exploration to build a strong basis for discussion.
 </span>
 <span style="font-weight: bold"></span><span style="font-weight: bold; color: #ff00ff"># Agent:</span> <span style="font-weight: bold"></span><span style="font-weight: bold; color: #00ff00">Geopolitical Analyst</span>
