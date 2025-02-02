@@ -33,11 +33,10 @@ class ConsensusOrchestrationFlow(Flow):
         if isinstance(self.config_data.get("models", ["ollama/llama3.2:latest"]), dict):
             self.models = self.config_data.get("models", ["ollama/llama3.2:latest"])
         else:
-            self.models = [model]
+            self.models = model
         self.max_retries = self.config_data.get("max_retries", 5)
         self.stage6_output=""
         self.retries=0
-        self.model = model
 
     @start()
     def run_stages_1_to_3(self):
@@ -49,7 +48,7 @@ class ConsensusOrchestrationFlow(Flow):
             before_tasks=self.config_data["stagesConfig"][0]["before"],
             between_tasks=self.config_data["stagesConfig"][0]["between"],
             debaters_tasks=self.config_data["stagesConfig"][0]["debaters_tasks"],
-            models=self.models[0]
+            models=self.models
         )
         # The initial "prompt_data" can include the topic
         kickoff_result = crew13.crew().kickoff({
@@ -68,7 +67,7 @@ class ConsensusOrchestrationFlow(Flow):
             before_tasks=self.config_data["stagesConfig"][1]["before"],
             between_tasks=self.config_data["stagesConfig"][1]["between"],
             debaters_tasks=self.config_data["stagesConfig"][1]["debaters_tasks"],
-            models=self.models[0]
+            models=self.models
         )
 
         
@@ -90,7 +89,7 @@ class ConsensusOrchestrationFlow(Flow):
             before_tasks=self.config_data["stagesConfig"][2]["before"],
             between_tasks=self.config_data["stagesConfig"][2]["between"],
             debaters_tasks=self.config_data["stagesConfig"][2]["debaters_tasks"],
-            models=self.models[0]
+            models=self.models
         )
         stage_6_result = crew6.crew().kickoff({
             "topic": self.topic,
@@ -192,7 +191,7 @@ class ConsensusOrchestrationFlow(Flow):
             before_tasks=self.config_data["stagesConfig"][3]["before"],
             between_tasks=self.config_data["stagesConfig"][3]["between"],
             debaters_tasks=self.config_data["stagesConfig"][3]["debaters_tasks"],
-            models=self.models[0]
+            models=self.models
         )
         final_result = crew7.crew().kickoff({
             "topic": self.topic,
@@ -216,9 +215,9 @@ class ConsensusOrchestrationFlow(Flow):
 
 def kickoff():
     models = [
-		"ollama/falcon3:10b",
-		"ollama/falcon3",
-		"ollama/llama3.2",
+		# "ollama/falcon3:10b",
+		# "ollama/falcon3",
+		# "ollama/llama3.2",
 		"ollama/llama3.1"
 	]
     print("==== Starting Consensus Orchestration Flow ====")
