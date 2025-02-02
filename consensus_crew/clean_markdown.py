@@ -2,17 +2,32 @@
 """
 clean_markdown.py
 
-This script reads an input text file, removes unwanted ANSI escape sequences (i.e. weird characters),
-and outputs a cleaned-up Markdown file.
+This script reads an input text file, removes unwanted ANSI escape sequences
+(e.g. "weird characters"), and produces a nicely formatted Markdown output.
 
 Optionally, if the --keep-colors flag is used and the ansi2html package is installed,
-ANSI color codes will be converted into inline HTML so that colors are preserved in the Markdown.
-(This works best if your Markdown renderer supports embedded HTML.)
+ANSI color codes will be converted into inline HTML so that (most) Markdown renderers
+that support embedded HTML will show the colors.
+
+Additionally, you can specify the file encoding via the --encoding flag.
+If not provided, the script attempts to auto-detect the encoding using chardet
+(if installed); otherwise, it defaults to 'utf-8'.
+
+Dependencies:
+- ansi2html (if using --keep-colors): install via `pip install ansi2html`
+- chardet (optional for auto-detection): install via `pip install chardet`
 """
 
 import re
 import sys
 import argparse
+
+# Optional: Use chardet for encoding detection
+try:
+    import chardet
+    HAS_CHARDET = True
+except ImportError:
+    HAS_CHARDET = False
 
 # Try to import ansi2html for color preservation
 try:
@@ -23,52 +38,74 @@ except ImportError:
 
 def remove_ansi_sequences(text):
     """
-    Remove ANSI escape sequences from the text.
-    ANSI escape sequences match the pattern:
-      ESC [ ... some characters ...
+    Remove ANSI escape sequences from text.
     """
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]')
     return ansi_escape.sub('', text)
 
 def convert_ansi_to_html(text):
     """
-    Convert ANSI color codes in the text to inline HTML.
-    This function uses the ansi2html library.
+    Convert ANSI escape codes to inline HTML using ansi2html.
     """
     if not HAS_ANSI2HTML:
-        sys.exit("Error: ansi2html is not installed. Please install it with: pip install ansi2html")
+        sys.exit("Error: ansi2html is not installed. Please install it via 'pip install ansi2html'")
     conv = Ansi2HTMLConverter(inline=True)
-    # The convert() method returns HTML that you can embed in Markdown.
     return conv.convert(text, full=False)
+
+def detect_encoding(file_path):
+    """
+    Auto-detect the file encoding using chardet (if available).
+    """
+    try:
+        with open(file_path, 'rb') as f:
+            rawdata = f.read()
+    except Exception as e:
+        sys.exit(f"Error reading file in binary mode for encoding detection: {e}")
+        
+    if HAS_CHARDET:
+        result = chardet.detect(rawdata)
+        encoding = result.get('encoding', 'utf-8')
+        print(f"Detected encoding: {encoding}")
+        return encoding
+    else:
+        print("chardet not installed; defaulting to utf-8")
+        return 'utf-8'
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Clean weird (ANSI) characters from a file and produce a nicely formatted Markdown output."
+        description="Clean ANSI escape sequences from a file and produce formatted Markdown output."
     )
     parser.add_argument("input_file", help="Path to the input file")
     parser.add_argument("output_file", help="Path to the output Markdown file")
     parser.add_argument("--keep-colors", action="store_true",
-                        help="Keep colors by converting ANSI codes to HTML (requires ansi2html)")
+                        help="Preserve ANSI colors by converting to inline HTML (requires ansi2html)")
+    parser.add_argument("--encoding", default=None,
+                        help="Specify the file encoding (if not provided, auto-detect or default to utf-8)")
     args = parser.parse_args()
 
-    # Read the input file
+    # Determine encoding: either provided or auto-detect
+    if args.encoding:
+        encoding = args.encoding
+        print(f"Using provided encoding: {encoding}")
+    else:
+        encoding = detect_encoding(args.input_file)
+
+    # Read the input file using the determined encoding; use errors='replace' to handle bad characters gracefully.
     try:
-        with open(args.input_file, 'r', encoding='utf-8', errors='ignore') as infile:
+        with open(args.input_file, 'r', encoding=encoding, errors='replace') as infile:
             content = infile.read()
     except Exception as e:
         sys.exit(f"Error reading file {args.input_file}: {e}")
 
-    # Process the file based on the flag
+    # Process content
     if args.keep_colors:
-        # Convert ANSI color codes to HTML
         processed_content = convert_ansi_to_html(content)
-        # Wrap the HTML in a <div> so that it can be embedded in Markdown
+        # Wrap in a <div> so that embedded HTML is properly handled in Markdown renderers.
         processed_content = f"<div>\n{processed_content}\n</div>\n"
     else:
-        # Simply remove ANSI escape sequences
         processed_content = remove_ansi_sequences(content)
 
-    # Write the processed text to the output Markdown file
+    # Write to output file (always as UTF-8)
     try:
         with open(args.output_file, 'w', encoding='utf-8') as outfile:
             outfile.write(processed_content)
